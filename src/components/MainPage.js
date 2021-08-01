@@ -201,10 +201,10 @@ export default function MainPage({ theme }) {
                 </div>
                 <Carousel emulateTouch autoPlay autoFocus infiniteLoop showArrows={false} showIndicators={false} showThumbs={false} interval={5000}>
                     <div>
-                        <img src="publi1.jpg" style={{ opacity: 0.8 }} />
+                        <img src="https://i.ibb.co/mTh4fhs/publi1.jpg" style={{ opacity: 0.8 }} />
                     </div>
                     <div>
-                        <img src="publi2.jpg" style={{ opacity: 0.8 }} />
+                        <img src="https://i.ibb.co/D1rt1QH/publi2.jpg" style={{ opacity: 0.8 }} />
                     </div>
                 </Carousel>
                 <Hidden mdUp>
@@ -260,8 +260,6 @@ export default function MainPage({ theme }) {
                                         </Card>
                                     </Grid>
                                 </Grid>
-
-
                             </Grid>
                         </Grid>
                     </Grid>

@@ -66,9 +66,9 @@ const useStyles = makeStyles((theme) => ({
         padding: 10
     }),
     logo2: ({ myTheme }) => (  {
-        width: 200,
-        height: 200,
-        borderRadius: '40%', 
+        width: 219,
+        height: 219,
+        borderRadius: '50%', 
         backgroundColor: myTheme.terteary.main,
     }),
     title: ({ myTheme }) => ({
@@ -343,28 +343,36 @@ export default function Store({ setSession, session, car, setCar }) {
     }
     return (
         <>
-        <div className={classes.themeButtons}>
-            <IconButton style={{ color: themes.themeBlueLight.primary.main }} component="span" onClick={()=>{ handleChangeTheme('blue')}}>
-                <FormatPaintIcon />
-            </IconButton>
-            <IconButton style={{ color: themes.themePinkLight.primary.main }} component="span" onClick={()=>{ handleChangeTheme('pink')}}>
-                <FormatPaintIcon />
-            </IconButton>
-            <IconButton style={{ color: themes.themeOrangeLight.primary.main }} component="span" onClick={()=>{ handleChangeTheme('orange')}}>
-                <FormatPaintIcon />
-            </IconButton>
-        </div>
-        <div className={classes.day}>
-            <IconButton style={{ color: selectedTheme.secondary.main }} component="span" onClick={handleChangeDay}>
-                {
-                    (day)?
-                        <Brightness4Icon />
-                    :
-                        <Brightness5Icon />
-                }
-                
-            </IconButton>
-        </div>
+        {
+            (id_store==1)?
+            <>
+                <div className={classes.themeButtons}>
+                    <IconButton style={{ color: themes.themeBlueLight.primary.main }} component="span" onClick={()=>{ handleChangeTheme('blue')}}>
+                        <FormatPaintIcon />
+                    </IconButton>
+                    <IconButton style={{ color: themes.themePinkLight.primary.main }} component="span" onClick={()=>{ handleChangeTheme('pink')}}>
+                        <FormatPaintIcon />
+                    </IconButton>
+                    <IconButton style={{ color: themes.themeOrangeLight.primary.main }} component="span" onClick={()=>{ handleChangeTheme('orange')}}>
+                        <FormatPaintIcon />
+                    </IconButton>
+                </div>
+                <div className={classes.day}>
+                    <IconButton style={{ color: selectedTheme.secondary.main }} component="span" onClick={handleChangeDay}>
+                        {
+                            (day)?
+                                <Brightness4Icon />
+                            :
+                                <Brightness5Icon />
+                        }
+                        
+                    </IconButton>
+                </div>
+            </>
+            :
+            <></>
+        }
+        
         <MainAppBar setSession={setSession} session={session} car={car} setCar={setCar} theme={selectedTheme} />
             
             <div className={classes.root} >

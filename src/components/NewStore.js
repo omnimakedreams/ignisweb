@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     root: {
         marginBottom: 10,
         paddingTop: 50,
-        minHeight: 800,
+        minHeight: 650,
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start"
@@ -80,10 +80,8 @@ export default function NewStore({ session }) {
     const classes = useStyles();
     const steps = getSteps();
     const [activeStep, setActiveStep] = useState(0);
-    const [loading, setLoading] = useState(false);
     const [loadingButton, setLoadingButton] = useState(false);
-    const [car, setCar] = useState([]);
-
+    const [loadingInCard, setLoadingInCard] = useState(false);
     const [title, setTitle] = useState('');
     const [tempurl, setTempurl] = useState('');
     const [description, setDescription] = useState('');
@@ -199,7 +197,7 @@ export default function NewStore({ session }) {
         }
     }
     const darDeAlta = () => {
-        setLoadingButton(true);
+        setLoadingInCard(true);
         new Promise((resolve, _) => {
             let resp = getData(logo.split(',')[1]);
             resolve(resp);
@@ -222,16 +220,58 @@ export default function NewStore({ session }) {
                 .then(res => {
                     console.log(res.data);
                     if (res.data.status === "success") {
-                        
+                        setActiveStep((prevActiveStep) => prevActiveStep + 1);
                     } else {
                         
                     }
-                    setLoadingButton(false);
+                    setLoadingInCard(false);
                 })
             })
         })
         
     };
+    if(session){
+        if(session.type=="free" && session.myStores.length>0){
+            return (
+                <div className={classes.root}>
+                    <Grid item  xs={12} md={12} style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center"
+                    }}>
+                        <Card style={{ width: '90%', marginTop: 50 }} variant="outlined">
+                            <Grid container spacing={0} style={{ margin: 5,
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                minHeight: 250
+                            }}>
+                                <Grid item  xs={12} md={12} style={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center"
+                                }}>
+                                    <Typography className={classes.instructions} variant="h4">Accede a servicios premium para administrar multiples tiendas</Typography>
+                                </Grid>
+                                <Grid item  xs={12} md={12} style={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center"
+                                }}>
+                                    <Link to={"/planes"} style={{ textDecoration: "none" }}>
+                                        <Button variant="contained" color="primary">
+                                            Ir a lista de planes
+                                        </Button>
+                                    </Link>
+                                </Grid>
+                            </Grid>
+                            
+                        </Card>
+                    </Grid>
+                </div>
+            )
+        }
+    }
     return (
         <div className={classes.root}>
             <Card style={{ width: '90%', marginTop: 50 }} variant="outlined">
@@ -243,18 +283,47 @@ export default function NewStore({ session }) {
                     ))}
                 </Stepper>
                 {activeStep === steps.length ? (
-                    <div>
-                        <Typography className={classes.instructions}>Facturación Completada</Typography>
-                        <Typography className={classes.instructions}>En las proximas horas seras contactado por nuestro personal para confirmar tu compra. Por favor esta atento a tus vías de contacto: </Typography>
-                        <Typography className={classes.instructions}>{session.code + session.phone}</Typography>
-                        <Typography className={classes.instructions}>{session.email}</Typography>
-                        <Link to="/" style={{ textDecoration: "none" }}>
-                            <Button variant="contained" color="primary">
-                                Volver al inicio
-                            </Button>
-                        </Link>
-
-                    </div>
+                    <Grid container spacing={0} style={{ margin: 5,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        minHeight: 250
+                     }}>
+                            <Grid item  xs={12} md={12} style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}>
+                                <Typography className={classes.instructions} variant="h4">¡Enhorabuena!</Typography>
+                            </Grid>
+                            <Grid item  xs={12} md={12} style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}>
+                                <Typography className={classes.instructions}>Has conseguido crear tu tienda en la dirección:</Typography>
+                            </Grid>
+                            <Grid item  xs={12} md={12} style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}>
+                                <Link to={"/"+tempurl}>
+                                    <Typography className={classes.instructions}>{urls.clientURL+"/"+tempurl}</Typography>
+                                </Link>
+                            </Grid>
+                            <Grid item  xs={12} md={12} style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}>
+                                <Link to={"/"+tempurl} style={{ textDecoration: "none" }}>
+                                    <Button variant="contained" color="primary">
+                                        Ir a mi tienda
+                                    </Button>
+                                </Link>
+                            </Grid>
+                    </Grid>
                 ) : (
                     <div style={{ minHeight: 350 }}>
                         <Grid container spacing={0} style={{ margin: 5,
@@ -264,6 +333,16 @@ export default function NewStore({ session }) {
                                 minHeight: 250
                              }}>
                             {
+                                 (loadingInCard)?
+                                    <Grid item  xs={12} md={12} style={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        height: 600
+                                    }}>
+                                        <CircularProgress color="primary"/>
+                                    </Grid>
+                                :
                                 activeStep == 0 ?
                                     <Grid item xs={12} md={12}>
                                         <Grid container spacing={1}>
@@ -345,181 +424,181 @@ export default function NewStore({ session }) {
                                         </Grid>
                                     </Grid>
                                     :
-                                    activeStep == 1 ?
-                                        <Grid item xs={12} md={12}>
-                                            <TextField id="outlined-basic2" type="number" label="Precio en BsS de un (1) dolar" variant="outlined" value={dolar} onChange={handleChangeDolar} onCopy={handleCopy} onPaste={handleCopy} helperText="Esto será visible para tus clientes y se haran cálculos en base a él" style={{ width: '50%' }} autoComplete='off' fullWidth />
-                                        </Grid>
-                                        :
-                                        activeStep == 2 ?
-                                            <>
-                                                <Grid item xs={12} md={12} style={{
-                                                    display: "flex",
-                                                    justifyContent: "center",
-                                                    alignItems: "center"
-                                                }}>
-                                                    <Typography variant="h6" align="center" color="primary" style={{ width: 150, backgroundColor: '#fff', opacity: 0.8, borderRadius: 20 }}>
-                                                        Ajustes visuales
-                                                    </Typography>
-                                                </Grid>
-                                                <Grid item xs={12} md={12} style={{
-                                                    height: 500,
-                                                    display: "flex",
-                                                    justifyContent: "center",
-                                                    alignItems: "center",
-                                                    width: '100%'
-                                                }}>
-                                                    <Card style={{ width: '90%', height: 480 }} variant="outlined">
-                                                        <div className={classes.cover} style={{ backgroundImage: (banner) ? 'url(' + banner + ')' : 'url(\'./cover.svg\')' }}>
-                                                        <Grid container spacing={0}>
-                                                                <Grid item xs={12} md={12} style={{
-                                                                    display: "flex",
-                                                                    justifyContent: "flex-start",
-                                                                    alignItems: "flex-start"
-                                                                }}>
-                                                                    <Button
-                                                                        variant="contained"
-                                                                        component="label"
-                                                                        color="primary"
-                                                                    >
-                                                                        Cargar Banner
-                                                                        <input
-                                                                            type="file"
-                                                                            accept="image/*"
-                                                                            onChange={handlerChangeCover}
-                                                                            hidden
-                                                                        />
-                                                                    </Button>
-                                                                </Grid>
-                                                                <Grid item xs={12} md={12} style={{
-                                                                    display: "flex",
-                                                                    justifyContent: "flex-start",
-                                                                    alignItems: "flex-start",
-                                                                    marginLeft: 5
-                                                                }}>
+                                        activeStep == 1 ?
+                                            <Grid item xs={12} md={12}>
+                                                <TextField id="outlined-basic2" type="number" label="Precio en BsS de un (1) dolar" variant="outlined" value={dolar} onChange={handleChangeDolar} onCopy={handleCopy} onPaste={handleCopy} helperText="Esto será visible para tus clientes y se haran cálculos en base a él" style={{ width: '50%' }} autoComplete='off' fullWidth />
+                                            </Grid>
+                                            :
+                                            activeStep == 2 ?
+                                                <>
+                                                    <Grid item xs={12} md={12} style={{
+                                                        display: "flex",
+                                                        justifyContent: "center",
+                                                        alignItems: "center"
+                                                    }}>
+                                                        <Typography variant="h6" align="center" color="primary" style={{ width: 150, backgroundColor: '#fff', opacity: 0.8, borderRadius: 20 }}>
+                                                            Ajustes visuales
+                                                        </Typography>
+                                                    </Grid>
+                                                    <Grid item xs={12} md={12} style={{
+                                                        height: 500,
+                                                        display: "flex",
+                                                        justifyContent: "center",
+                                                        alignItems: "center",
+                                                        width: '100%'
+                                                    }}>
+                                                        <Card style={{ width: '90%', height: 480 }} variant="outlined">
+                                                            <div className={classes.cover} style={{ backgroundImage: (banner) ? 'url(' + banner + ')' : 'url(\'./cover.svg\')' }}>
+                                                            <Grid container spacing={0}>
+                                                                    <Grid item xs={12} md={12} style={{
+                                                                        display: "flex",
+                                                                        justifyContent: "flex-start",
+                                                                        alignItems: "flex-start"
+                                                                    }}>
+                                                                        <Button
+                                                                            variant="contained"
+                                                                            component="label"
+                                                                            color="primary"
+                                                                        >
+                                                                            Cargar Banner
+                                                                            <input
+                                                                                type="file"
+                                                                                accept="image/*"
+                                                                                onChange={handlerChangeCover}
+                                                                                hidden
+                                                                            />
+                                                                        </Button>
+                                                                    </Grid>
+                                                                    <Grid item xs={12} md={12} style={{
+                                                                        display: "flex",
+                                                                        justifyContent: "flex-start",
+                                                                        alignItems: "flex-start",
+                                                                        marginLeft: 5
+                                                                    }}>
+                                                                        {
+                                                                            (!banner) ?
+                                                                                <Typography variant="h6" color="primary" style={{ width: 150, marginTop: 4, backgroundColor: '#fff', opacity: 0.8, borderRadius: 20 }}>
+                                                                                    1280 x 700
+                                                                                </Typography>
+                                                                                :
+                                                                                <></>
+                                                                        }
+                                                                    </Grid>
+                                                            </Grid>
+                                                            </div>
+                                                            <div className={classes.logo0}>
+                                                                <Grid container spacing={0} style={{ padding: 5, marginTop: -310 }}>
+                                                                    <Grid item xs={12} md={12} style={{
+                                                                        display: "flex",
+                                                                        justifyContent: "center",
+                                                                        alignItems: "center"
+                                                                    }}>
+                                                                        <div className={(logo) ? classes.logo : classes.logoEmpty}>
+                                                                            <img src={(logo) ? logo : "./upload.svg"} className={(logo) ? classes.logo2 : classes.logo3} />
+                                                                        </div>
+                                                                    </Grid>
                                                                     {
-                                                                        (!banner) ?
-                                                                            <Typography variant="h6" color="primary" style={{ width: 150, marginTop: 4, backgroundColor: '#fff', opacity: 0.8, borderRadius: 20 }}>
-                                                                                1280 x 700
-                                                                            </Typography>
+                                                                        (!logo) ?
+                                                                            <Grid item xs={12} md={12} style={{
+                                                                                display: "flex",
+                                                                                justifyContent: "center",
+                                                                                alignItems: "center",
+                                                                                marginTop: -250,
+                                                                                marginLeft: -10
+                                                                            }}>
+                                                                                <Typography variant="h6" color="primary" style={{ width: 150, marginLeft: 20, marginTop: 2, backgroundColor: '#fff', opacity: 0.8, borderRadius: 20 }}>
+                                                                                    300 x 300
+                                                                                </Typography>
+                                                                            </Grid>
                                                                             :
                                                                             <></>
                                                                     }
-                                                                </Grid>
-                                                        </Grid>
-                                                        </div>
-                                                        <div className={classes.logo0}>
-                                                            <Grid container spacing={0} style={{ padding: 5, marginTop: -310 }}>
-                                                                <Grid item xs={12} md={12} style={{
-                                                                    display: "flex",
-                                                                    justifyContent: "center",
-                                                                    alignItems: "center"
-                                                                }}>
-                                                                    <div className={(logo) ? classes.logo : classes.logoEmpty}>
-                                                                        <img src={(logo) ? logo : "./upload.svg"} className={(logo) ? classes.logo2 : classes.logo3} />
-                                                                    </div>
-                                                                </Grid>
-                                                                {
-                                                                    (!logo) ?
-                                                                        <Grid item xs={12} md={12} style={{
-                                                                            display: "flex",
-                                                                            justifyContent: "center",
-                                                                            alignItems: "center",
-                                                                            marginTop: -250,
-                                                                            marginLeft: -10
-                                                                        }}>
-                                                                            <Typography variant="h6" color="primary" style={{ width: 150, marginLeft: 20, marginTop: 2, backgroundColor: '#fff', opacity: 0.8, borderRadius: 20 }}>
-                                                                                300 x 300
-                                                                            </Typography>
-                                                                        </Grid>
-                                                                        :
-                                                                        <></>
-                                                                }
 
 
-                                                                <Grid item xs={12} md={12} style={{
-                                                                    display: "flex",
-                                                                    justifyContent: "center",
-                                                                    alignItems: "center",
-                                                                    marginTop: 20
-                                                                }}>
-                                                                    <Button
-                                                                        variant="contained"
-                                                                        component="label"
-                                                                        color="primary"
-                                                                    >
-                                                                        Cargar logo
-                                                                        <input
-                                                                            type="file"
-                                                                            accept="image/*"
-                                                                            onChange={handlerChangeLogo}
-                                                                            hidden
-                                                                        />
-                                                                    </Button>
-                                                                </Grid>
+                                                                    <Grid item xs={12} md={12} style={{
+                                                                        display: "flex",
+                                                                        justifyContent: "center",
+                                                                        alignItems: "center",
+                                                                        marginTop: 20
+                                                                    }}>
+                                                                        <Button
+                                                                            variant="contained"
+                                                                            component="label"
+                                                                            color="primary"
+                                                                        >
+                                                                            Cargar logo
+                                                                            <input
+                                                                                type="file"
+                                                                                accept="image/*"
+                                                                                onChange={handlerChangeLogo}
+                                                                                hidden
+                                                                            />
+                                                                        </Button>
+                                                                    </Grid>
 
-                                                            </Grid>
-                                                        </div>
-                                                    </Card>
-                                                </Grid>
-                                            </>
-                                            :
-                                            activeStep == 3 ?
-                                            <>
-                                                <Grid item xs={12} md={12} style={{
-                                                    display: "flex",
-                                                    justifyContent: "center",
-                                                    alignItems: "center"
-                                                }}>
-                                                    <Typography variant="h4">
-                                                        {title}
-                                                    </Typography>
-                                                </Grid>
-                                                <Grid item xs={12} md={12} style={{
-                                                    display: "flex",
-                                                    justifyContent: "center",
-                                                    alignItems: "center"
-                                                }}>
-                                                    <Typography variant="h6">
-                                                        {urls.clientURL+"/"+tempurl}
-                                                    </Typography>
-                                                </Grid>
-                                                <Grid item xs={12} md={12} style={{
-                                                    display: "flex",
-                                                    justifyContent: "center",
-                                                    alignItems: "center"
-                                                }}>
-                                                    <Typography>
-                                                        Dolar: BsS {parseInt(dolar).toFixed(2)}
-                                                    </Typography>
-                                                </Grid>
-                                                <Grid item xs={12} md={12} style={{
-                                                    display: "flex",
-                                                    justifyContent: "center",
-                                                    alignItems: "center"
-                                                }}>
-                                                    <Card style={{ width: '90%', height: 480 }} variant="outlined">
-                                                        <div className={classes.cover} style={{ backgroundImage: 'url(' + banner + ')' }}>
-                                                        </div>
-                                                        <div className={classes.logo0}>
-                                                            <Grid container spacing={0} style={{ padding: 5, marginTop: -310 }}>
-                                                                <Grid item xs={12} md={12} style={{
-                                                                    display: "flex",
-                                                                    justifyContent: "center",
-                                                                    alignItems: "center"
-                                                                }}>
-                                                                    <div className={classes.logo}>
-                                                                        <img src={logo} className={classes.logo2} />
-                                                                    </div>
                                                                 </Grid>
-                                                            </Grid>
-                                                        </div>
-                                                    </Card>
-                                                </Grid>
-                                                    
-                                            </>
-                                            :
-                                            <>
-                                            </>
+                                                            </div>
+                                                        </Card>
+                                                    </Grid>
+                                                </>
+                                                :
+                                                activeStep == 3 ?
+                                                <>
+                                                    <Grid item xs={12} md={12} style={{
+                                                        display: "flex",
+                                                        justifyContent: "center",
+                                                        alignItems: "center"
+                                                    }}>
+                                                        <Typography variant="h4">
+                                                            {title}
+                                                        </Typography>
+                                                    </Grid>
+                                                    <Grid item xs={12} md={12} style={{
+                                                        display: "flex",
+                                                        justifyContent: "center",
+                                                        alignItems: "center"
+                                                    }}>
+                                                        <Typography variant="h6">
+                                                            {urls.clientURL+"/"+tempurl}
+                                                        </Typography>
+                                                    </Grid>
+                                                    <Grid item xs={12} md={12} style={{
+                                                        display: "flex",
+                                                        justifyContent: "center",
+                                                        alignItems: "center"
+                                                    }}>
+                                                        <Typography>
+                                                            Dolar: BsS {parseInt(dolar).toFixed(2)}
+                                                        </Typography>
+                                                    </Grid>
+                                                    <Grid item xs={12} md={12} style={{
+                                                        display: "flex",
+                                                        justifyContent: "center",
+                                                        alignItems: "center"
+                                                    }}>
+                                                        <Card style={{ width: '90%', height: 480 }} variant="outlined">
+                                                            <div className={classes.cover} style={{ backgroundImage: 'url(' + banner + ')' }}>
+                                                            </div>
+                                                            <div className={classes.logo0}>
+                                                                <Grid container spacing={0} style={{ padding: 5, marginTop: -310 }}>
+                                                                    <Grid item xs={12} md={12} style={{
+                                                                        display: "flex",
+                                                                        justifyContent: "center",
+                                                                        alignItems: "center"
+                                                                    }}>
+                                                                        <div className={classes.logo}>
+                                                                            <img src={logo} className={classes.logo2} />
+                                                                        </div>
+                                                                    </Grid>
+                                                                </Grid>
+                                                            </div>
+                                                        </Card>
+                                                    </Grid>
+                                                        
+                                                </>
+                                                :
+                                                <>
+                                                </>
                             }
                         </Grid>
                         <div style={{ marginTop: 20, marginBottom: 20}}>
@@ -580,7 +659,7 @@ export default function NewStore({ session }) {
                                                 </Button>
                                             </>
                                             :
-                                            activeStep == 3 ?
+                                            (activeStep == 3 && !loadingInCard) ?
                                             <>
                                                 <Button
                                                     disabled={activeStep === 0}
@@ -589,7 +668,7 @@ export default function NewStore({ session }) {
                                                 >
                                                     Volver
                                                 </Button>
-                                                <Button variant="contained" color="primary">
+                                                <Button variant="contained" color="primary" onClick={darDeAlta}>
                                                     <StoreIcon /> Dar de alta a tu tienda
                                                 </Button>
                                             </>

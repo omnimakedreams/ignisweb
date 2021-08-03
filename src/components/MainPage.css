@@ -1,0 +1,55 @@
+
+.cactus {
+  -webkit-animation: animate 4s;
+  animation: animate 4s;
+}
+
+@-webkit-keyframes animate {
+  0% {
+    -webkit-transform-origin: center;
+            transform-origin: center;
+    fill: none;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    -webkit-transform-origin: center;
+    transform-origin: center;
+  }
+  30% {
+    fill: none;
+  }
+  60% {
+    fill: #FFF;
+  }
+  80% {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dasharray: 1000;
+  }
+}
+
+@keyframes animate {
+  0% {
+    -webkit-transform-origin: center;
+            transform-origin: center;
+    fill: none;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    -webkit-transform-origin: center;
+            transform-origin: center;
+  }
+  30% {
+    fill: none;
+  }
+  60% {
+    fill: #FFF;
+  }
+  80% {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dasharray: 1000;
+  }
+}

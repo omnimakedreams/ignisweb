@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { MapContainer, Marker, TileLayer, Popup, useMapEvents } from 'react-leaflet';
 import Button from '@material-ui/core/Button';
@@ -13,14 +13,18 @@ import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a lo
 import { Carousel } from 'react-responsive-carousel';
 import Hidden from '@material-ui/core/Hidden';
 import Loader from './Loader';
-
+import './MainPage.css';
 import {
     Link
 } from "react-router-dom";
+import { motion, useMotionValue, useTransform, } from "framer-motion";
+
+let scene, camera, renderer, cube;
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        marginBottom: 0
+        marginBottom: 0,
+        marginTop: 400
     },
     card: {
         borderRadius: '1rem',
@@ -66,6 +70,17 @@ const useStyles = makeStyles((theme) => ({
         '& p':{
             color: theme.palette.terteary.contrastText
         }
+    },
+    motionDiv1: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-end",
+        width: '100%',
+        height: 400,
+        position: 'fixed'
+    },
+    motionDiv2:{
+        height: 400
     }
 }));
 function rand() {
@@ -82,6 +97,30 @@ function getModalStyle() {
         transform: `translate(-${top}%, -${left}%)`,
     };
 }
+const SVGData = [{
+    type:3,
+    img: './svgsIndex/house(1).svg'
+},
+{
+    type:2,
+    img: './svgsIndex/house(1).svg'
+},
+{
+    type:3,
+    img: './svgsIndex/house(1).svg'
+},
+{
+    type:3,
+    img: './svgsIndex/house(1).svg'
+},
+{
+    type:3,
+    img: './svgsIndex/house(1).svg'
+},
+{
+    type:3,
+    img: './svgsIndex/house(1).svg'
+}]
 const coordenadasIniciales = [10.491, -66.902];
 export default function MainPage({ theme }) {
     const classes = useStyles();
@@ -89,11 +128,8 @@ export default function MainPage({ theme }) {
     const [modalStyle] = useState(getModalStyle);
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(true);
-    useEffect(() => {
-        setTimeout(() => {
-            setLoading(false);
-        }, 1000);
-    }, [])
+    const [isActive, setIsActive] = useState(false);
+
     useEffect(() => {
         console.log(marker);
         return false;
@@ -122,148 +158,54 @@ export default function MainPage({ theme }) {
     const saveLocation = () => {
         setOpen(false);
     };
-    if(loading){
+    const constraintsRef = useRef(null);
+    /* if(loading){
         return <Loader theme={theme} />
-    }
+    } */
+    const x = useMotionValue(0)
+    
+    const background = useTransform(
+        x,
+        [-300, 0, 300],
+        ["#010023", "#ff8000", "#92c5fc" ]
+    )
     return (
         <>  
-            <div className={classes.root}>
-                <div style={{
-                    position: 'absolute',
-                    zIndex: 10,
-                    width: '100%',
-
-                }}>
-                    <Hidden smDown>
-                        <Grid container style={{ padding: 5 }}>
-                            <Grid item xs={12} md={12} style={{
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                height: 400
-                            }}>
-                                <Grid item xs={12} md={12} style={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center"
-                                }}>
-                                    <Grid container style={{ padding: 5 }}>
-                                        <Grid item xs={12} md={6} style={{
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center"
-                                        }}>
-                                            <Link to="/planes" style={{ textDecoration: 'none' }}>
-                                                <Button variant="contained" color="primary" onClick={handleOpen}>
-                                                    Crea tu tienda gratis
-                                                </Button>
-                                            </Link>
-                                        </Grid>
-                                        <Grid item xs={12} md={6} style={{
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                            marginTop: 40
-                                        }}>
-                                            <Card style={{ width: 280 }} className={classes.minicard}>
-                                                <CardContent>
-                                                    <TextField
-                                                        label="Llave de tu tienda favorita"
-                                                        variant="outlined"
-                                                        className={classes.textField}
-                                                        InputProps={{
-                                                            classes: {
-                                                                input: classes.multilineColor
-                                                            }
-                                                        }}
-                                                        color="secondary"
-                                                        focused
-                                                        helperText="Escribe 'ignis' para ver un demo"
-                                                    />
-                                                    
-                                                    <Link to="/demo" style={{ textDecoration: 'none' }}>
-                                                        <Button variant="contained" color="primary" style={{ marginTop: 10 }}>
-                                                            Visitar
-                                                        </Button>
-                                                    </Link>
-
-                                                </CardContent>
-                                            </Card>
-                                        </Grid>
-                                    </Grid>
-
-
-                                </Grid>
-                            </Grid>
-                        </Grid>
-                    </Hidden>
-
-                </div>
-                <Carousel emulateTouch autoPlay autoFocus infiniteLoop showArrows={false} showIndicators={false} showThumbs={false} interval={5000}>
-                    <div>
-                        <img src="https://i.ibb.co/mTh4fhs/publi1.jpg" style={{ opacity: 0.8 }} />
-                    </div>
-                    <div>
-                        <img src="https://i.ibb.co/D1rt1QH/publi2.jpg" style={{ opacity: 0.8 }} />
-                    </div>
-                </Carousel>
-                <Hidden mdUp>
-                    <Grid container style={{ padding: 5 }}>
-                        <Grid item xs={12} md={12} style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center"
-                        }}>
-                            <Grid item xs={12} md={12} style={{
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center"
-                            }}>
-                                <Grid container style={{ padding: 5 }}>
-                                    <Grid item xs={12} md={6} style={{
-                                        display: "flex",
-                                        justifyContent: "center",
-                                        alignItems: "center"
-                                    }}>
-                                        <Link to="/planes" style={{ textDecoration: 'none' }}>
-                                            <Button variant="contained" color="primary" onClick={handleOpen}>
-                                                Crea tu tienda gratis
-                                            </Button>
-                                        </Link>
-                                    </Grid>
-                                    <Grid item xs={12} md={6} style={{
-                                        display: "flex",
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                        marginTop: 40
-                                    }}>
-                                        <Card style={{ width: 280 }} className={classes.minicard}>
-                                            <CardContent>
-                                                <TextField
-                                                    label="Llave de tu tienda favorita"
-                                                    variant="outlined"
-                                                    style={{ width: 250, color: "#fff", marginTop: 10 }}
-                                                    InputProps={{
-                                                        classes: {
-                                                            input: classes.multilineColor
-                                                        }
-                                                    }}
-                                                    color="secondary"
-                                                    focused
-                                                />
-                                                <Link to="/demo" style={{ textDecoration: 'none' }}>
-                                                    <Button variant="contained" color="primary" style={{ marginTop: 10 }}>
-                                                        Visitar
-                                                    </Button>
-                                                </Link>
-                                            </CardContent>
-                                        </Card>
-                                    </Grid>
-                                </Grid>
-                            </Grid>
-                        </Grid>
+            <motion.div className={classes.motionDiv1} style={{ background }}>
+                <motion.img
+                    drag="x"
+                    dragConstraints={{ top: 0, bottom: 0, left: -450, right: 450 }}
+                    className={classes.motionDiv2}
+                    key={"./svgsIndex/longcity.svg"}
+                    src={"./svgsIndex/longcity.svg"}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    style={{x}}
+                    transition={{
+                        x: { type: "spring", stiffness: 300, damping: 30 },
+                        opacity: { duration: 0.2 }
+                    }}
+                />
+            </motion.div>
+            <Grid container style={{ padding: 20, width: '100%' }}>
+                    <Grid item xs={12} md={12} style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        marginTop: 100, 
+                        marginLeft: -15,
+                        position: 'fixed',
+                        width: '100%'
+                    }}>
+                        <Link to={"/planes"} style={{textDecoration: 'none'}}>
+                            <Button size="large" variant="contained" color="primary" style={{ marginTop: 10 }} disableElevation>
+                                Se parte de Ignis
+                            </Button>
+                        </Link>
                     </Grid>
-                </Hidden>
+            </Grid>
+            <div className={classes.root}>
                 <Grid container style={{ padding: 20 }}>
                     <Grid item xs={12} md={4} style={{
                         display: "flex",

@@ -18,7 +18,7 @@ import Footer from './components/common/Footer';
 import Notfound from './components/Notfound';
 import Unavailable from './components/Unavailable';
 import FactureSteps from './components/FactureSteps';
-import { ThemeProvider } from '@material-ui/styles';
+import { ThemeProvider, makeStyles } from '@material-ui/styles';
 import Container from '@material-ui/core/Container';
 
 import {
@@ -59,10 +59,16 @@ theme.typography.h3 = {
     fontSize: '2.4rem',
   },
 };
-function App() {
-  const [session, setSession] = useState(false);
-  
+const useStyles = makeStyles((theme) => ({
+  root: {
+    textAlign: 'center',
+    backgroundColor: '#0d0d0d'
+  }
+}));
 
+function App() {
+  const classes = useStyles();
+  const [session, setSession] = useState(false);
   const [car, setCar] = useState([]);
   const themeBlue = {
     primary: {
@@ -104,9 +110,9 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <Router >
-        <div className="App">
+        <div className={classes.root}>
             <Switch>
-              <Route path="/product/:product_key">
+              { /* <Route path="/product/:product_key">
                   <SimpleReactLightbox>
                     <ProductView session={session} setSession={setSession} session={session} car={car} setCar={setCar} />
                   </SimpleReactLightbox>
@@ -197,10 +203,10 @@ function App() {
               <Route path="/:key">
                 <Store setSession={setSession} session={session} car={car} setCar={setCar} />
               </Route>
+              */}
               <Route path="/">
                 <MainAppBar setSession={setSession} session={session} car={car} setCar={setCar}  theme={selectedTheme}/>
                 <MainPage theme={selectedTheme} />
-                <Footer theme={selectedTheme} />
               </Route>
             </Switch>
             

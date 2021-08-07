@@ -5,83 +5,52 @@ import { MapContainer, Marker, TileLayer, Popup, useMapEvents } from 'react-leaf
 import Button from '@material-ui/core/Button';
 import Modal from '@material-ui/core/Modal';
 import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import TextField from '@material-ui/core/TextField';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
-import { Carousel } from 'react-responsive-carousel';
 import Hidden from '@material-ui/core/Hidden';
-import Loader from './Loader';
 import './MainPage.css';
 import {
     Link
 } from "react-router-dom";
-import { motion, useMotionValue, useTransform, } from "framer-motion";
+import Slide from 'react-reveal/Slide';
+import Flip from 'react-reveal/Flip';
+import Typography from '@material-ui/core/Typography';
+import { motion, useMotionValue, useTransform, MotionConfig } from "framer-motion";
 
 let scene, camera, renderer, cube;
 
 const useStyles = makeStyles((theme) => ({
     root: {
         marginBottom: 0,
-        marginTop: 400
-    },
-    card: {
-        borderRadius: '1rem',
-        boxShadow: 'none',
-        position: 'relative',
-        minWidth: 200,
-        minHeight: 360,
-        '&:after': {
-            content: '""',
-            display: 'block',
-            position: 'absolute',
-            width: '100%',
-            height: '64%',
-            bottom: 0,
-            zIndex: 1,
-            background: 'linear-gradient(to top, #000, rgba(0,0,0,0))',
-        },
-    },
-    content: {
-        position: 'absolute',
-        zIndex: 2,
-        bottom: 0,
-        width: '90%',
-    },
-    paper: {
-        position: 'absolute',
-        width: 400,
-        backgroundColor: theme.palette.background.paper,
-        border: '2px solid #000',
-        boxShadow: theme.shadows[5],
-        padding: theme.spacing(2, 4, 3),
-    },
-    minicard: {
-        backgroundColor: theme.palette.terteary.main,
-    },
-    multilineColor: {
-        color: theme.palette.secondary.main
-    },
-    textField: {
-        width: 250, 
-        color: theme.palette.terteary.contrastText,
-        marginTop: 10,
-        '& p':{
-            color: theme.palette.terteary.contrastText
-        }
+        overflowY: 'hidden'
     },
     motionDiv1: {
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-end",
         width: '100%',
-        height: 400,
-        position: 'fixed'
+        height: '100vh',
+        overflow: 'hidden'
     },
-    motionDiv2:{
+    motionDiv2: {
         height: 400
-    }
+    },
+    motionDivClouds: {
+        height: 600
+    },
+    motionDivClouds2: {
+        height: 400
+    },
+    motionDiv3: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-end",
+        width: '100%',
+        height: '100vh',
+        overflow: 'hidden'
+    },
+    motionDiv4: {
+        height: 200
+    },
 }));
 function rand() {
     return Math.round(Math.random() * 20) - 10;
@@ -98,42 +67,57 @@ function getModalStyle() {
     };
 }
 const SVGData = [{
-    type:3,
+    type: 3,
     img: './svgsIndex/house(1).svg'
 },
 {
-    type:2,
+    type: 2,
     img: './svgsIndex/house(1).svg'
 },
 {
-    type:3,
+    type: 3,
     img: './svgsIndex/house(1).svg'
 },
 {
-    type:3,
+    type: 3,
     img: './svgsIndex/house(1).svg'
 },
 {
-    type:3,
+    type: 3,
     img: './svgsIndex/house(1).svg'
 },
 {
-    type:3,
+    type: 3,
     img: './svgsIndex/house(1).svg'
 }]
 const coordenadasIniciales = [10.491, -66.902];
+
 export default function MainPage({ theme }) {
     const classes = useStyles();
     const [marker, setMarker] = useState(coordenadasIniciales);
     const [modalStyle] = useState(getModalStyle);
     const [open, setOpen] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const [isActive, setIsActive] = useState(false);
+    const [mainSrc, setMainSrc] = useState("./svgsIndex/longcity.svg");
+    const [cloudsSrc, setCloudsSrc] = useState("./svgsIndex/Clouds.svg");
+    const [stars, setStars] = useState(false);
+    const [weather, setWeather] = useState(false);
+    const [noon, setNoon] = useState(false);
+    const [weatherSrc, setWeatherSrc] = useState("./svgsIndex/sun.svg");
+    const [letters, setLetters] = useState(false);
+    const [title, setTitle] = useState('Somos la comunidad eCommerce a su alcance');
+    const [seconds, setSeconds] = useState(10);
+    const [logoPres, setLogoPres] = useState(false);
 
     useEffect(() => {
         console.log(marker);
         return false;
     }, [marker])
+    useEffect(() => {
+        setTimeout(() => {
+            setWeather(true);
+            setLetters(true);
+        }, 2000);
+    }, [])
     function LocationMarker({ mrk, setMarker }) {
         const map = useMapEvents({
             click(e) {
@@ -163,106 +147,309 @@ export default function MainPage({ theme }) {
         return <Loader theme={theme} />
     } */
     const x = useMotionValue(0)
-    
+
     const background = useTransform(
         x,
-        [-300, 0, 300],
-        ["#010023", "#ff8000", "#92c5fc" ]
+        [-3000, -2500, -1500, -1000, 0, 500],
+        ["#92c5fc", "#170300", "#000d17", "#ff8000", "#92c5fc", "#92c5fc"]
     )
+    const mensajes = ['Somos la comunidad eCommerce a su alcance', 'Manejamos las herramientas que usted conoce', '¡Crea tu tienda gratis y prueba todo lo que tenemos para tí y tus clientes!']
+    useEffect(() => {
+        if (seconds > 0) {
+            setTimeout(() => setSeconds(seconds - 1), 1000);
+        } else {
+            setSeconds(10);
+            setLetters(false);
+            if (title == mensajes[0]) {
+                setTitle(mensajes[1]);
+                setTimeout(() => {
+                    setLetters(true);
+                }, 1000);
+            }
+            if (title == mensajes[1]) {
+                setTitle(mensajes[2]);
+                setTimeout(() => {
+                    setLetters(true);
+                }, 1000);
+            }
+            if (title == mensajes[2]) {
+                setTitle(mensajes[0]);
+                setTimeout(() => {
+                    setLetters(true);
+                }, 1000);
+            }
+        }
+    });
+    useEffect(() => {
+        setTimeout(() => {
+            setWeatherSrc("./svgsIndex/sun.svg");
+        }, 5000);
+    }, [])
+    useEffect(() => x.onChange(latest => {
+        if (latest > -2500 && latest < -1500) {
+            if (mainSrc == "./svgsIndex/longcity.svg") {
+                setMainSrc("./svgsIndex/longcity2.svg");
+                setCloudsSrc("./svgsIndex/Clouds2.svg");
+                setStars(true);
+                setWeather(false);
+                setTimeout(() => {
+                    setWeatherSrc("./svgsIndex/moon.svg");
+                    setWeather(true);
+                }, 500);
+            }
+        }
+        if (latest > -2000 && latest < -500) {
+            if (!noon) {
+                setNoon(true)
+            }
+        }
+        if (latest < -1500 || latest > -500) {
+            if (noon) {
+                setNoon(false)
+            }
+        }
+        if (latest < -2500 || latest > -1500) {
+            if (mainSrc == "./svgsIndex/longcity2.svg") {
+                setMainSrc("./svgsIndex/longcity.svg");
+                setCloudsSrc("./svgsIndex/Clouds.svg");
+                setStars(false);
+                setWeather(false);
+                setTimeout(() => {
+                    setWeatherSrc("./svgsIndex/sun.svg");
+                    setWeather(true);
+
+                }, 500);
+            }
+        }
+        if (latest > 0) {
+            if (!logoPres) {
+                setLogoPres(true);
+            }
+        }
+        if (latest < -500) {
+            if (logoPres) {
+                setLogoPres(false);
+            }
+        }
+    }), [mainSrc, logoPres])
     return (
-        <>  
-            <motion.div className={classes.motionDiv1} style={{ background }}>
-                <motion.img
-                    drag="x"
-                    dragConstraints={{ top: 0, bottom: 0, left: -450, right: 450 }}
-                    className={classes.motionDiv2}
-                    key={"./svgsIndex/longcity.svg"}
-                    src={"./svgsIndex/longcity.svg"}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    style={{x}}
-                    transition={{
-                        x: { type: "spring", stiffness: 300, damping: 30 },
-                        opacity: { duration: 0.2 }
-                    }}
-                />
-            </motion.div>
-            <Grid container style={{ padding: 20, width: '100%' }}>
+        <>
+            <Hidden xsDown >
+                <motion.div className={classes.motionDiv1} style={{ background }}>
+                        <motion.img
+                            className={classes.motionDivClouds}
+                            key={"clouds"}
+                            src={cloudsSrc}
+                            initial={{ x: '600vw' }}
+                            transition={{ duration: 140, ease: "linear", loop: Infinity }}
+                            animate={{ x: "calc(-155vw - 0%)" }}
+                            exit={{ opacity: 0 }}
+                        />
+                        <motion.img
+                            className={classes.motionDivClouds}
+                            key={"clouds2"}
+                            src={cloudsSrc}
+                            initial={{ x: '600vw' }}
+                            transition={{ duration: 140, ease: "linear", loop: Infinity }}
+                            animate={{ x: "calc(-155vw - 0%)" }}
+                            exit={{ opacity: 0 }}
+                        />
+                        <motion.img
+                            className={classes.motionDiv2}
+                            key={"main"}
+                            src={mainSrc}
+                            initial={{ x: '50vw' }}
+                            transition={{ duration: 70, ease: "linear", loop: Infinity }}
+                            animate={{ x: "calc(-300vw - 0%)" }}
+                            exit={{ opacity: 0 }}
+                            style={{ x }}
+                        />
+                        <motion.img
+                            className={classes.motionDiv2}
+                            key={"main2"}
+                            src={mainSrc}
+                            initial={{ x: '50vw' }}
+                            transition={{ duration: 70, ease: "linear", loop: Infinity }}
+                            animate={{ x: "calc(-600vw - 0%)" }}
+                            exit={{ opacity: 0 }}
+                            style={{ x }}
+                        />
+                </motion.div>
+            </Hidden>
+            <Hidden smUp>
+                <motion.div className={classes.motionDiv1} style={{ background }}>
+                    <motion.img
+                        className={classes.motionDivClouds2}
+                        key={"clouds"}
+                        src={cloudsSrc}
+                        initial={{ x: '-450vw' }}
+                        transition={{ duration: 140, ease: "linear", loop: Infinity }}
+                        animate={{ x: "calc(-600vw - 0%)" }}
+                        exit={{ opacity: 0 }}
+                    />
+                    <motion.img
+                        className={classes.motionDivClouds2}
+                        key={"clouds2"}
+                        src={cloudsSrc}
+                        initial={{ x: '-450vw' }}
+                        transition={{ duration: 140, ease: "linear", loop: Infinity }}
+                        animate={{ x: "calc(-600vw - 0%)" }}
+                        exit={{ opacity: 0 }}
+                    />
+                    <motion.img
+                        className={classes.motionDiv4}
+                        key={"main"}
+                        src={mainSrc}
+                        initial={{ x: '50vw' }}
+                        transition={{ duration: 70, ease: "linear", loop: Infinity }}
+                        animate={{ x: "calc(-2000vw - 0%)" }}
+                        exit={{ opacity: 0 }}
+                        style={{ x }}
+                    />
+                    <motion.img
+                        className={classes.motionDiv4}
+                        key={"main2"}
+                        src={mainSrc}
+                        initial={{ x: '50vw' }}
+                        transition={{ duration: 70, ease: "linear", loop: Infinity }}
+                        animate={{ x: "calc(-2000vw - 0%)" }}
+                        exit={{ opacity: 0 }}
+                        style={{ x }}
+                    />
+                </motion.div>
+            </Hidden>
+            <Grid container style={{ width: '100%'}}>
+                <Hidden xsDown>
+                    <Grid item xs={12} md={12} style={{
+                        display: "flex",
+                        justifyContent: "flex-start",
+                        alignItems: "flex-start",
+                        marginTop: -750,
+                        width: '100%'
+                    }}>
+                        <Slide left when={weather}>
+                            <img
+                                src={weatherSrc}
+                                style={{ width: 200, marginLeft: 20 }}
+                            />
+                        </Slide>
+                    </Grid>
+                    <Grid item xs={12} md={12} style={{
+                        display: "flex",
+                        justifyContent: "flex-start",
+                        alignItems: "flex-start",
+                        marginTop: -700,
+                        width: '100%'
+                    }}>
+                        <Slide left when={noon}>
+                            <img
+                                src={"./svgsIndex/oneCloud.svg"}
+                                style={{ width: 200 }}
+                            />
+                        </Slide>
+                    </Grid>
                     <Grid item xs={12} md={12} style={{
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        marginTop: 100, 
-                        marginLeft: -15,
-                        position: 'fixed',
+                        marginTop: -1300,
+                        width: '100%',
+                        backgroundImage: weatherSrc == "./svgsIndex/moon.svg" ? "url('./svgsIndex/stars.svg')" : "none"
+                    }}>
+                        <Flip top when={letters}>
+                            <Typography variant="h4" style={{ color: '#fff' }}>
+                                {title}
+                            </Typography>
+                        </Flip>
+                    </Grid>
+                    <Grid item xs={12} md={12} style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        marginTop: -500,
                         width: '100%'
                     }}>
-                        <Link to={"/planes"} style={{textDecoration: 'none'}}>
+                        <Flip top when={logoPres}>
+                            <img
+                                src={"./omniico.png"}
+                                style={{ width: 300 }}
+                            />
+                        </Flip>
+                    </Grid>
+                    <Grid item xs={12} md={12} style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        marginTop: -1000,
+                        width: '100%'
+                    }}>
+                        <Link to={"/planes"} style={{ textDecoration: 'none' }}>
                             <Button size="large" variant="contained" color="primary" style={{ marginTop: 10 }} disableElevation>
                                 Se parte de Ignis
                             </Button>
                         </Link>
                     </Grid>
+                </Hidden>
+                <Hidden smUp>
+                    <Grid item xs={12} md={12} style={{
+                        display: "flex",
+                        justifyContent: "flex-start",
+                        alignItems: "flex-start",
+                        marginTop: -550,
+                        width: '100%'
+                    }}>
+                        <Slide left when={weather}>
+                            <img
+                                src={weatherSrc}
+                                style={{ width: 200, marginLeft: 20 }}
+                            />
+                        </Slide>
+                    </Grid>
+                    <Grid item xs={12} md={12} style={{
+                        display: "flex",
+                        justifyContent: "flex-start",
+                        alignItems: "flex-start",
+                        marginTop: -500,
+                        width: '100%'
+                    }}>
+                        <Slide left when={noon}>
+                            <img
+                                src={"./svgsIndex/oneCloud.svg"}
+                                style={{ width: 200 }}
+                            />
+                        </Slide>
+                    </Grid>
+                    <Grid item xs={12} md={12} style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        marginTop: -1300,
+                        backgroundImage: weatherSrc == "./svgsIndex/moon.svg" ? "url('./svgsIndex/stars.svg')" : "none",
+                        width: '100%'
+                    }}>
+                        <Flip top when={letters}>
+                            <Typography variant="h5" style={{ color: '#fff' }}>
+                                {title}
+                            </Typography>
+                        </Flip>
+                    </Grid>
+                    <Grid item xs={12} md={12} style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        marginTop: -1000,
+                        width: '100%'
+                    }}>
+                        <Link to={"/planes"} style={{ textDecoration: 'none' }}>
+                            <Button size="large" variant="contained" color="primary" style={{ marginTop: 10 }} disableElevation>
+                                Se parte de Ignis
+                            </Button>
+                        </Link>
+                    </Grid>
+                </Hidden>
+
             </Grid>
             <div className={classes.root}>
-                <Grid container style={{ padding: 20 }}>
-                    <Grid item xs={12} md={4} style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: 300
-                    }}>
-                        <img src="whatsapp.jpg" style={{ borderRadius: '50%', maxWidth: 300 }} />
-                    </Grid>
-                    <Grid item xs={12} md={8} style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: 300
-                    }}>
-                        <Grid container style={{ padding: 20 }}>
-                            <Grid item xs={12} md={12}>
-                                <Typography variant="h6" color="secondary">
-                                    Manejamos las herramientas que usted conoce
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={12} md={12}>
-                                <Typography variant="p" color="secondary">
-                                    Reciba sus reportes de facturación diario/semanal/mensual directamente a su número de teléfono vía whatsapp y administre las alertas de compra por la misma vía.
-                                </Typography>
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                    <Grid item xs={12} md={4} style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: 300
-                    }}>
-                        <img src="android.png" style={{ maxWidth: 300 }} />
-                    </Grid>
-                    <Grid item xs={12} md={8} style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: 300
-                    }}>
-                        <Grid container style={{ padding: 20 }}>
-                            <Grid item xs={12} md={12}>
-                                <Typography variant="h6" color="secondary">
-                                    Manténga a sus clientes conectados con nuestra app
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={12} md={12} >
-                                <Typography variant="p" color="secondary">
-                                    Obtenga su menú en línea y promocione su espacio mediante la aplicación móvil dedicada para usuarios.
-                                </Typography>
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                </Grid>
-
                 <Modal
                     open={open}
                     onClose={handleClose}
@@ -321,7 +508,7 @@ export default function MainPage({ theme }) {
 
             </div>
         </>
-        
-        
+
+
     );
 }

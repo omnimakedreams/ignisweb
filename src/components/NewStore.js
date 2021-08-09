@@ -20,6 +20,7 @@ import {
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
+import CropperImage from './common/CropperImage';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -32,7 +33,6 @@ const useStyles = makeStyles((theme) => ({
     },
     cover: {
         width: "100%",
-        height: 400,
         backgroundPosition: 'center',
         backgroundRepeat: 'none',
         display: "flex",
@@ -79,7 +79,7 @@ function getSteps() {
 export default function NewStore({ session }) {
     const classes = useStyles();
     const steps = getSteps();
-    const [activeStep, setActiveStep] = useState(0);
+    const [activeStep, setActiveStep] = useState(2);
     const [loadingButton, setLoadingButton] = useState(false);
     const [loadingInCard, setLoadingInCard] = useState(false);
     const [title, setTitle] = useState('');
@@ -140,49 +140,6 @@ export default function NewStore({ session }) {
         } else {
             console.log("No puede haber campos vacíos");
         }
-    };
-    const handlerChangeLogo = (event) => {
-        const file = event.target.files[0];
-        event.target.value = null
-        const reader = new FileReader();
-        reader.onload = () => {
-            var img = new Image;
-            img.onload = function () {
-                if (img.width == 300 && img.height == 300) {
-                    const base64 = reader.result;
-                    setLogo(base64);
-                } else {
-                    console.log("tamaño no válido");
-                }
-            };
-            img.src = reader.result;
-        };
-        reader.onerror = (error) => {
-            console.log(error);
-        };
-        reader.readAsDataURL(file);
-
-    };
-    const handlerChangeCover = (event) => {
-        const file = event.target.files[0];
-        event.target.value = null
-        const reader = new FileReader();
-        reader.onload = () => {
-            var img = new Image;
-            img.onload = function () {
-                if (img.width == 1280 || img.height == 700) {
-                    const base64 = reader.result;
-                    setBanner(base64);
-                } else {
-                    console.log("tamaño no válido");
-                }
-            };
-            img.src = reader.result;
-        };
-        reader.onerror = (error) => {
-            console.log(error);
-        };
-        reader.readAsDataURL(file);
     };
     async function getData(base64) {
         try {
@@ -430,117 +387,13 @@ export default function NewStore({ session }) {
                                             </Grid>
                                             :
                                             activeStep == 2 ?
-                                                <>
                                                     <Grid item xs={12} md={12} style={{
                                                         display: "flex",
                                                         justifyContent: "center",
                                                         alignItems: "center"
                                                     }}>
-                                                        <Typography variant="h6" align="center" color="primary" style={{ width: 150, backgroundColor: '#fff', opacity: 0.8, borderRadius: 20 }}>
-                                                            Ajustes visuales
-                                                        </Typography>
+                                                        <CropperImage banner={banner} setBanner={setBanner} logo={logo} setLogo={setLogo} />
                                                     </Grid>
-                                                    <Grid item xs={12} md={12} style={{
-                                                        height: 500,
-                                                        display: "flex",
-                                                        justifyContent: "center",
-                                                        alignItems: "center",
-                                                        width: '100%'
-                                                    }}>
-                                                        <Card style={{ width: '90%', height: 480 }} variant="outlined">
-                                                            <div className={classes.cover} style={{ backgroundImage: (banner) ? 'url(' + banner + ')' : 'url(\'./cover.svg\')' }}>
-                                                            <Grid container spacing={0}>
-                                                                    <Grid item xs={12} md={12} style={{
-                                                                        display: "flex",
-                                                                        justifyContent: "flex-start",
-                                                                        alignItems: "flex-start"
-                                                                    }}>
-                                                                        <Button
-                                                                            variant="contained"
-                                                                            component="label"
-                                                                            color="primary"
-                                                                        >
-                                                                            Cargar Banner
-                                                                            <input
-                                                                                type="file"
-                                                                                accept="image/*"
-                                                                                onChange={handlerChangeCover}
-                                                                                hidden
-                                                                            />
-                                                                        </Button>
-                                                                    </Grid>
-                                                                    <Grid item xs={12} md={12} style={{
-                                                                        display: "flex",
-                                                                        justifyContent: "flex-start",
-                                                                        alignItems: "flex-start",
-                                                                        marginLeft: 5
-                                                                    }}>
-                                                                        {
-                                                                            (!banner) ?
-                                                                                <Typography variant="h6" color="primary" style={{ width: 150, marginTop: 4, backgroundColor: '#fff', opacity: 0.8, borderRadius: 20 }}>
-                                                                                    1280 x 700
-                                                                                </Typography>
-                                                                                :
-                                                                                <></>
-                                                                        }
-                                                                    </Grid>
-                                                            </Grid>
-                                                            </div>
-                                                            <div className={classes.logo0}>
-                                                                <Grid container spacing={0} style={{ padding: 5, marginTop: -310 }}>
-                                                                    <Grid item xs={12} md={12} style={{
-                                                                        display: "flex",
-                                                                        justifyContent: "center",
-                                                                        alignItems: "center"
-                                                                    }}>
-                                                                        <div className={(logo) ? classes.logo : classes.logoEmpty}>
-                                                                            <img src={(logo) ? logo : "./upload.svg"} className={(logo) ? classes.logo2 : classes.logo3} />
-                                                                        </div>
-                                                                    </Grid>
-                                                                    {
-                                                                        (!logo) ?
-                                                                            <Grid item xs={12} md={12} style={{
-                                                                                display: "flex",
-                                                                                justifyContent: "center",
-                                                                                alignItems: "center",
-                                                                                marginTop: -250,
-                                                                                marginLeft: -10
-                                                                            }}>
-                                                                                <Typography variant="h6" color="primary" style={{ width: 150, marginLeft: 20, marginTop: 2, backgroundColor: '#fff', opacity: 0.8, borderRadius: 20 }}>
-                                                                                    300 x 300
-                                                                                </Typography>
-                                                                            </Grid>
-                                                                            :
-                                                                            <></>
-                                                                    }
-
-
-                                                                    <Grid item xs={12} md={12} style={{
-                                                                        display: "flex",
-                                                                        justifyContent: "center",
-                                                                        alignItems: "center",
-                                                                        marginTop: 20
-                                                                    }}>
-                                                                        <Button
-                                                                            variant="contained"
-                                                                            component="label"
-                                                                            color="primary"
-                                                                        >
-                                                                            Cargar logo
-                                                                            <input
-                                                                                type="file"
-                                                                                accept="image/*"
-                                                                                onChange={handlerChangeLogo}
-                                                                                hidden
-                                                                            />
-                                                                        </Button>
-                                                                    </Grid>
-
-                                                                </Grid>
-                                                            </div>
-                                                        </Card>
-                                                    </Grid>
-                                                </>
                                                 :
                                                 activeStep == 3 ?
                                                 <>

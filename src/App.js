@@ -112,7 +112,7 @@ function App() {
       <Router >
         <div className={classes.root}>
             <Switch>
-              { /* <Route path="/product/:product_key">
+              <Route path="/product/:product_key">
                   <SimpleReactLightbox>
                     <ProductView session={session} setSession={setSession} session={session} car={car} setCar={setCar} />
                   </SimpleReactLightbox>
@@ -203,7 +203,6 @@ function App() {
               <Route path="/:key">
                 <Store setSession={setSession} session={session} car={car} setCar={setCar} />
               </Route>
-              */}
               <Route path="/">
                 <MainAppBar setSession={setSession} session={session} car={car} setCar={setCar}  theme={selectedTheme}/>
                 <MainPage theme={selectedTheme} />

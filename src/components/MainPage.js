@@ -104,8 +104,8 @@ export default function MainPage({ theme }) {
     const [noon, setNoon] = useState(false);
     const [weatherSrc, setWeatherSrc] = useState("./svgsIndex/sun.svg");
     const [letters, setLetters] = useState(false);
-    const [title, setTitle] = useState('Somos la comunidad eCommerce a su alcance');
-    const [seconds, setSeconds] = useState(10);
+    const [title, setTitle] = useState('');
+    const [seconds, setSeconds] = useState(2);
     const [logoPres, setLogoPres] = useState(false);
 
     useEffect(() => {
@@ -150,7 +150,7 @@ export default function MainPage({ theme }) {
 
     const background = useTransform(
         x,
-        [-3000, -2500, -1500, -1000, 0, 500],
+        [-3500, -3000, -1500, -1000, 0, 500],
         ["#92c5fc", "#170300", "#000d17", "#ff8000", "#92c5fc", "#92c5fc"]
     )
     const mensajes = ['Somos la comunidad eCommerce a su alcance', 'Manejamos las herramientas que usted conoce', '¡Crea tu tienda gratis y prueba todo lo que tenemos para tí y tus clientes!']
@@ -160,6 +160,12 @@ export default function MainPage({ theme }) {
         } else {
             setSeconds(10);
             setLetters(false);
+            if (title == '') {
+                setTitle(mensajes[0]);
+                setTimeout(() => {
+                    setLetters(true);
+                }, 1000);
+            }
             if (title == mensajes[0]) {
                 setTitle(mensajes[1]);
                 setTimeout(() => {
@@ -186,7 +192,7 @@ export default function MainPage({ theme }) {
         }, 5000);
     }, [])
     useEffect(() => x.onChange(latest => {
-        if (latest > -2500 && latest < -1500) {
+        if (latest > -3000 && latest < -1500) {
             if (mainSrc == "./svgsIndex/longcity.svg") {
                 setMainSrc("./svgsIndex/longcity2.svg");
                 setCloudsSrc("./svgsIndex/Clouds2.svg");
@@ -208,7 +214,7 @@ export default function MainPage({ theme }) {
                 setNoon(false)
             }
         }
-        if (latest < -2500 || latest > -1500) {
+        if (latest < -3000 || latest > -1500) {
             if (mainSrc == "./svgsIndex/longcity2.svg") {
                 setMainSrc("./svgsIndex/longcity.svg");
                 setCloudsSrc("./svgsIndex/Clouds.svg");
@@ -240,7 +246,7 @@ export default function MainPage({ theme }) {
                             className={classes.motionDivClouds}
                             key={"clouds"}
                             src={cloudsSrc}
-                            initial={{ x: '600vw' }}
+                            initial={{ x: '450vw' }}
                             transition={{ duration: 140, ease: "linear", loop: Infinity }}
                             animate={{ x: "calc(-155vw - 0%)" }}
                             exit={{ opacity: 0 }}
@@ -249,7 +255,7 @@ export default function MainPage({ theme }) {
                             className={classes.motionDivClouds}
                             key={"clouds2"}
                             src={cloudsSrc}
-                            initial={{ x: '600vw' }}
+                            initial={{ x: '450vw' }}
                             transition={{ duration: 140, ease: "linear", loop: Infinity }}
                             animate={{ x: "calc(-155vw - 0%)" }}
                             exit={{ opacity: 0 }}

@@ -24,6 +24,37 @@ import themes from './common/themes';
 import Loader from './Loader';
 import MainAppBar from './common/MainAppBar';
 import Footer from './common/Footer';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { motion, AnimatePresence } from "framer-motion";
+import { wrap } from "popmotion";
+import './ProductView.css';
+
+const variants = {
+  enter: (direction) => {
+    return {
+      x: direction > 0 ? 300 : -300,
+      opacity: 0
+    };
+  },
+  center: {
+    zIndex: 1,
+    x: 0,
+    opacity: 1
+  },
+  exit: (direction) => {
+    return {
+      zIndex: 0,
+      x: direction < 0 ? 300 : -300,
+      opacity: 0
+    };
+  }
+};
+
+const swipeConfidenceThreshold = 10000;
+const swipePower = (offset, velocity) => {
+  return Math.abs(offset) * velocity;
+};
+
 const useStyles = makeStyles(() => ({
     root: ({ myTheme }) => (  {
         backgroundColor: myTheme.terteary.main
@@ -31,7 +62,16 @@ const useStyles = makeStyles(() => ({
     addCarButton: ({ myTheme }) => ({
         color: myTheme.primary.contrastText,
         backgroundColor: myTheme.primary.main
-    })
+    }),
+    addCarButtonLoading: ({ myTheme }) => ({
+        color: myTheme.primary.contrastText,
+        backgroundColor: myTheme.terteary.main,
+        padding: 15
+    }),
+    circleButtonLoading: ({ myTheme }) => ({
+        color: myTheme.primary.contrastText,
+        width: 25
+    }),
 }));
 
 export default function ProductView({ session, setCar, setSession, car }) {
@@ -39,6 +79,7 @@ export default function ProductView({ session, setCar, setSession, car }) {
     const history = useHistory();
     const [selectedTheme, setSelectedTheme] = useState(themes.themeBlueDark);
     const [day, setDay] = useState(false);
+    const [id_store, setId_store] = useState(null);
     const [loading, setLoading] = useState(true);
     const [itemQuantity, setItemQuantity] = useState(1);
     const [data, setData] = useState(null);
@@ -46,6 +87,19 @@ export default function ProductView({ session, setCar, setSession, car }) {
     const [id_product, setId_product] = useState(null);
     const [carousel, setCarousel] = useState(null);
     const [storeInfo, setStoreInfo] = useState(null);
+    const [storeKey, setStoreKey] = useState(null);
+    const [loadingButton, setLoadingButton] = useState(true);
+    const [[page, direction], setPage] = useState([0, 0]);
+
+    // We only have 3 images, but we paginate them absolutely (ie 1, 2, 3, 4, 5...) and
+    // then wrap that within 0-2 to find our image ID in the array below. By passing an
+    // absolute page index as the `motion` component's `key` prop, `AnimatePresence` will
+    // detect it as an entirely new image. So you can infinitely paginate as few as 1 images.
+    const imageIndex = wrap(0, (carousel)? carousel.length : 0, page);
+
+    const paginate = (newDirection) => {
+        setPage([page + newDirection, newDirection]);
+    };
     let classes = useStyles({ myTheme: selectedTheme });
     const handleChangeQuantity = (event) => {
         setItemQuantity(event.target.value);
@@ -75,42 +129,67 @@ export default function ProductView({ session, setCar, setSession, car }) {
     }
     const addToCar = () => {
         if (!session) {
-            history.push('/login');
+            const storageSession = localStorage.getItem('session');
+            if(storageSession){
+                setLoading(true);
+                const actualSession = JSON.parse(storageSession);
+                setSession(actualSession);
+                setLoadingButton(true);
+                const request = {
+                    access: urls.access,
+                    id_product: id_product,
+                    id_store: id_store,
+                    quantity: itemQuantity.toString(),
+                    id_user: actualSession.id_user
+                }
+                API.post(`/car/products/add`, request)
+                    .then(res => {
+                        if (res.data.status === "success") {
+                            setLoadingButton(false);
+                            history.push('/car/'+storeKey);
+                        } else {
+                            setLoadingButton(false);
+                            console.log(res.data.message);
+                        }
+                    })
+            }else{
+                history.push('/login');
+            }
         } else {
-            setLoading(true);
+            setLoadingButton(true);
             const request = {
                 access: urls.access,
                 id_product: id_product,
+                id_store: id_store,
                 quantity: itemQuantity.toString(),
                 id_user: session.id_user
             }
             API.post(`/car/products/add`, request)
                 .then(res => {
                     if (res.data.status === "success") {
-                        setCar(res.data.data);
-                        history.push('/car');
+                        setLoadingButton(false);
+                        history.push('/car/'+storeKey);
                     } else {
-                        setLoading(false);
+                        setLoadingButton(false);
                         console.log(res.data.message);
                     }
                 })
         }
     };
-
     useEffect(() => {
         setLoading(true);
         const request = {
             access: urls.access,
             key: product_key
         }
-        console.log(request);
         API.post(`/products/getOne`, request)
             .then(res => {
                 if (res.data.status === "success") {
-                    console.log(res.data);
                     setData(res.data.data);
                     setId_product(res.data.data.id_product);
                     setDolar(res.data.data.store.dolar);
+                    setId_store(res.data.data.store.id_store);
+                    setStoreKey(res.data.data.store.store_key);
                     setStoreInfo(res.data.data.store);
                     if (res.data.data.store.theme == 1) {
                         if (res.data.data.store.day == 1) {
@@ -122,7 +201,6 @@ export default function ProductView({ session, setCar, setSession, car }) {
                         if (res.data.data.store.theme == 2) {
                             if (res.data.data.store.day == 1) {
                                 setSelectedTheme(themes.themePinkLight);
-                                console.log("here");
                             } else {
                                 setSelectedTheme(themes.themePinkDark);
                             }
@@ -135,15 +213,13 @@ export default function ProductView({ session, setCar, setSession, car }) {
                         }
                     }
                     setLoading(false);
+                    setLoadingButton(false);
                 } else {
                     setLoading(false);
                     console.log(res.data.message);
                 }
             })
     }, [])
-    useEffect(() => {
-        console.log(selectedTheme);
-    }, [selectedTheme])
     useEffect(() => {
         if (data) {
             let vector = [];
@@ -193,11 +269,37 @@ export default function ProductView({ session, setCar, setSession, car }) {
                     <Grid item xs={12} md={7} style={{
                         display: "flex",
                         justifyContent: "center",
-                        alignItems: "flex-start"
+                        alignItems: "center"
                     }}>
-                        <SRLWrapper options={options}>
-                            <Carousel items={carousel} groupBy={1} showDots={false} effect="fade" />
-                        </SRLWrapper>
+                            <AnimatePresence initial={false} custom={direction} style={{ width: '100%' }}>
+                                <SRLWrapper options={options}>
+                                    <motion.img
+                                        key={page}
+                                        src={carousel[imageIndex].image}
+                                        custom={direction}
+                                        variants={variants}
+                                        initial="enter"
+                                        animate="center"
+                                        exit="exit"
+                                        transition={{
+                                            x: { type: "spring", stiffness: 300, damping: 30 },
+                                            opacity: { duration: 0.2 }
+                                        }}
+                                        drag="x"
+                                        dragConstraints={{ left: 0, right: 0 }}
+                                        dragElastic={0.4}
+                                        onDragEnd={(e, { offset, velocity }) => {
+                                            const swipe = swipePower(offset.x, velocity.x);
+                                            if (swipe < -swipeConfidenceThreshold) {
+                                            paginate(1);
+                                            } else if (swipe > swipeConfidenceThreshold) {
+                                            paginate(-1);
+                                            }
+                                        }}
+                                        style={{ width: '100%' }}
+                                    />
+                                </SRLWrapper>
+                            </AnimatePresence>
                     </Grid>
                     <Grid item xs={12} md={5} style={{
                         display: "flex",
@@ -209,16 +311,23 @@ export default function ProductView({ session, setCar, setSession, car }) {
                                 <Typography className={classes.title} color="textSecondary" gutterBottom>
                                     {data.category.main.name}
                                 </Typography>
-                                <Typography variant="h5" component="h2" style={{ textAlign: 'center' }}>
+                                <Typography align="center" variant="h5" component="h2">
                                     {data.title}
                                 </Typography>
-                                <Typography variant="h4" color="textSecondary" style={{ textAlign: 'center' }}>
-                                    {data.price.toFixed(2)}$
+                                <Typography align="center" variant="h4" color="textSecondary">
+                                    {urls.formatAmount(data.price, 'US')}
                                 </Typography>
-                                <Typography variant="h5" color="textSecondary" style={{ textAlign: 'center' }}>
-                                    BsS {(data.price * dolar).toFixed(2)}
+                                <Typography align="center" variant="h5" color="textSecondary" >
+                                    {urls.formatAmount((data.price * dolar), 'VE').replace('VES', 'BS')}
                                 </Typography>
-
+                                <Typography align="center" color="textSecondary" >
+                                    {
+                                        (data.mprice)?
+                                            "Al mayor: "+urls.formatAmount(data.mprice, 'US')+" (A partir de "+parseInt(data.mcondition)+" unidades)"
+                                        :
+                                            false
+                                    }
+                                </Typography>
                                 <Typography style={{ marginTop: 15, minHeight: 340 }}>
                                     {data.description}
                                 </Typography>
@@ -250,9 +359,19 @@ export default function ProductView({ session, setCar, setSession, car }) {
                                     justifyContent: "center",
                                     alignItems: "center"
                                 }}>
-                                    <Button variant="contained" fullWidth className={classes.addCarButton} onClick={addToCar}>
-                                        <AddShoppingCartIcon /> Agregar al carrito
-                                    </Button>
+                                    {
+                                        (id_store)?
+                                            (loadingButton)?
+                                                <Button variant="contained" disabled={true} fullWidth className={classes.addCarButtonLoading} >
+                                                    <CircularProgress className={classes.circleButtonLoading} />
+                                                </Button>
+                                            :
+                                                <Button variant="contained" fullWidth className={classes.addCarButton} onClick={addToCar}>
+                                                    <AddShoppingCartIcon /> Agregar al carrito
+                                                </Button>
+                                        :
+                                            <></>
+                                    }
                                 </Grid>
                             </CardContent>
                         </Card>

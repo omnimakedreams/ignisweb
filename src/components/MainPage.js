@@ -324,7 +324,7 @@ export default function MainPage({ theme }) {
                     />
                 </motion.div>
             </Hidden>
-            <Grid container style={{ width: '100%'}}>
+            <Grid container style={{ width: '100%' }}>
                 <Hidden xsDown>
                     <Grid item xs={12} md={12} style={{
                         display: "flex",

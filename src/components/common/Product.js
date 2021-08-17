@@ -7,6 +7,7 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
+import urls from "./variables";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -19,6 +20,7 @@ const useStyles = makeStyles(() => ({
         borderRadius: 10,
         borderColor: myTheme.primary.main,
         backgroundColor: myTheme.terteary.main,
+        minHeight: 350
     }),
     productCardContent: {
         padding: 5
@@ -48,14 +50,40 @@ function Product(props) {
                             <Typography align="center" gutterBottom variant="h5" style={{ color: theme.terteary.contrastText }}>
                                 {item.title}
                             </Typography>
-                            <Typography align="center" gutterBottom variant="p" style={{ color: theme.terteary.contrastText }}>
-                                {
-                                (moneda)?
-                                    '$'+item.price.toFixed(2)
-                                :
-                                    'BsS '+(item.price*dolar).toFixed(2)
-                                }
-                            </Typography>
+                            <Grid container spacing={0} style={{ padding: 5 }}>
+                                <Grid item xs={12} sm={(moneda && item.mprice)?6:12}>
+                                    <Typography align="center" gutterBottom style={{ color: theme.terteary.contrastText }}>
+                                        {
+                                            (moneda)?
+                                                urls.formatAmount(item.price, 'US')
+                                            :
+                                                urls.formatAmount((item.price * dolar), 'VE').replace('VES', 'BS')      
+                                        }
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={12} sm={(moneda)?6:12}>
+                                    {
+                                        (item.mprice)?
+                                            <>
+                                                <Typography variant="caption" align="center" style={{ color: theme.terteary.contrastText }}>
+                                                    Al Mayor: 
+                                                </Typography>
+                                                <Typography align="center" gutterBottom style={{ color: theme.terteary.contrastText }}>
+                                                    {
+                                                        (moneda)?
+                                                            urls.formatAmount(item.mprice, 'US')
+                                                        :
+                                                            urls.formatAmount((item.mprice * dolar), 'VE').replace('VES', 'BS')   
+                                                    }  
+                                                </Typography>
+                                            </>
+                                        :
+                                        <>
+                                        </>
+                                    }
+                                </Grid>
+                            </Grid>
+                            
                         </CardContent>
                     </Card>
                 </Link>

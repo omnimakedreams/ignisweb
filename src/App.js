@@ -20,7 +20,8 @@ import Unavailable from './components/Unavailable';
 import FactureSteps from './components/FactureSteps';
 import { ThemeProvider, makeStyles } from '@material-ui/styles';
 import Container from '@material-ui/core/Container';
-
+import API from './components/common/Axios';
+import urls from "./components/common/variables";
 import {
   BrowserRouter as Router,
   Switch,
@@ -93,16 +94,27 @@ function App() {
   const selectedTheme = themeBlue;
   useEffect(() => {
     const storageSession = localStorage.getItem('session');
-    console.log("Sesión en Storage: ");
-    console.log(JSON.parse(storageSession));
     if(storageSession){
-      setSession(JSON.parse(storageSession));
-      const storageCar = localStorage.getItem('car');
-      console.log("Carrito en Storage: ");
-      console.log(JSON.parse(storageCar));
-      setCar(JSON.parse(storageCar));
-    }
+      const request = {
+        access: urls.access,
+        session: JSON.parse(storageSession).session,
+        id_user: JSON.parse(storageSession).id_user
+      }
+      API.post(`/users/check/session`, request)
+          .then(res => {
+              if (res.data.status === "success") {
+                setSession(JSON.parse(storageSession));
+                const storageCar = localStorage.getItem('car');
+                console.log("Carrito en Storage: ");
+                console.log(JSON.parse(storageCar));
+                setCar(JSON.parse(storageCar));
+              } else {
+                  console.log(res.data.message);
+              }
+          })
+      }
   }, [])
+
   useEffect(() => {
     localStorage.setItem('car', JSON.stringify(car));
   }, [car])
@@ -114,15 +126,11 @@ function App() {
             <Switch>
               <Route path="/product/:product_key">
                   <SimpleReactLightbox>
-                    <ProductView session={session} setSession={setSession} session={session} car={car} setCar={setCar} />
+                    <ProductView setSession={setSession} session={session} car={car} setCar={setCar} />
                   </SimpleReactLightbox>
               </Route>
-              <Route path="/car">
-                <MainAppBar setSession={setSession} session={session} car={car} setCar={setCar}  theme={selectedTheme}/>
-                <Container maxWidth="lg" style={{ padding: 0 }}>
-                  <CarList  session={session} car={car} setCar={setCar} />
-                </Container>
-                <Footer theme={selectedTheme} />
+              <Route path="/car/:store_key">
+                  <CarList  session={session} car={car} setCar={setCar} setSession={setSession} />
               </Route>
               <Route path="/login">
                 <MainAppBar setSession={setSession} session={session} car={car} setCar={setCar}  theme={selectedTheme}/>

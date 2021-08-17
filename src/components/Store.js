@@ -18,7 +18,8 @@ import SearchIcon from '@material-ui/icons/Search';
 import Product from "./common/Product";
 import Hidden from '@material-ui/core/Hidden';
 import {
-    useParams
+    useParams,
+    Link
 } from "react-router-dom";
 import { Redirect } from 'react-router';
 import LocalShippingIcon from '@material-ui/icons/LocalShipping';
@@ -205,7 +206,6 @@ export default function Store({ setSession, session, car, setCar }) {
         API.get(`/store/get/`+key+`/`+actualSession)
             .then(res => {
                 if (res.data.status=="success") {
-                    console.log(res.data);
                     setId_store(res.data.storeData.id_store);
                     setPrecioDolar(res.data.storeData.dolar);
                     setTitle(res.data.storeData.title);
@@ -255,7 +255,6 @@ export default function Store({ setSession, session, car, setCar }) {
         setLoadingTabs(true);
         API.get(`/store/get/tabs/`+key+`/`+page+`/`+actualCategory)
             .then(res => {
-                console.log(res.data);
                 if (res.data.status=="success") {
                     setProducts(res.data.products);
                     setLoadingTabs(false);
@@ -406,9 +405,11 @@ export default function Store({ setSession, session, car, setCar }) {
                                     <Divider className={classes.divider} orientation="vertical" />
                                 </Hidden>
                                 <IconButton position="start">
-                                    <Badge badgeContent={usercar.length} classes={{ badge: classes.customBadge }} >
-                                        <ShoppingCartIcon  style={{ color: selectedTheme.secondary.main }} />
-                                    </Badge>
+                                    <Link to={'/car/'+key} style={{ textDecoration: 'none' }}>
+                                        <Badge badgeContent={usercar.length} classes={{ badge: classes.customBadge }} >
+                                            <ShoppingCartIcon  style={{ color: selectedTheme.secondary.main }} />
+                                        </Badge>
+                                    </Link>
                                 </IconButton>
                                 <IconButton position="start">
                                     <LocationOnIcon   style={{ color: selectedTheme.secondary.main }}  onClick={handleOpenModal} />
@@ -481,11 +482,10 @@ export default function Store({ setSession, session, car, setCar }) {
                     </Tabs>
                 </AppBar>
                     <TabPanel value={value} index={0} style={{ minHeight: 600, backgroundColor: selectedTheme.terteary.main }}>
-                        <Grid container spacing={0}>
+                        <Grid container spacing={1}>
                         {   
                             (!loadingTabs && products)?
                                     products.map((item, i) => {
-                                        console.log(item);
                                         return <Product item={item} dolar={precioDolar} link={"/product/"+item.product_key} theme={selectedTheme} moneda={moneda} />
                                     })
                                 :
